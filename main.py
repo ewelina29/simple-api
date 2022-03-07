@@ -1,10 +1,14 @@
 from typing import Optional
 
-from fastapi import FastAPI, Form
-from fastapi.encoders import jsonable_encoder
+from fastapi import FastAPI, Form, Depends
 from pydantic import BaseModel
 
+from crud import *
+from db import SessionLocal, engine
+
 app = FastAPI()
+
+models.Base.metadata.create_all(bind=engine)
 
 STUDENTS = [
     {
@@ -29,7 +33,11 @@ class Student(BaseModel):
     id: Optional[int] = 0
     # id: int
     name: str
+    surname: str
     student_class: str
+
+    class Config:
+        orm_mode = True
 
 
 @app.get("/root", name='Root endpoint', description='My root endpoint')
@@ -38,9 +46,20 @@ def root():
     # return "Hello World"
 
 
+# Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
 @app.get("/students", name='Students list')
-def get_students():
-    return STUDENTS
+def get_all_students(db: Session = Depends(get_db)):
+    print('HERE', get_students(db))
+    return get_students(db)
+    # return STUDENTS
 
 
 @app.get("/student/search", name='Student by name')
