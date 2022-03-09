@@ -74,10 +74,13 @@ def get_student_by_name(name: str, student_class: str = ''):
 
 
 @app.get("/student", name='Student by id')
-def get_student_by_id(id: int):
-    for student in STUDENTS:
-        if id == student['id']:
-            return student
+def get_student_by_id(id: int, db: Session = Depends(get_db)):
+    return get_db_student_by_id(db, id)
+
+    # OLD VERSION - WITHOUT DB
+    # for student in STUDENTS:
+    #     if id == student['id']:
+    #         return student
 
 
 @app.delete('/delete-student', name='Delete student by id')
@@ -93,17 +96,16 @@ def delete_student(id: int):
 
 
 @app.post('/create-student', name='Create student')
-def create_student(student: Student):
-    # STUDENTS.append({
-    #     'id': student.id,
-    #     'name': student.name,
-    #     'student_class': student.student_class,
-    # })
-    STUDENTS.append(student)
-    return {
-        'message': 'Dodano nowego studenta',
-        'student': student
-    }
+def create_student(student: Student, db: Session = Depends(get_db)):
+    s =  create_db_student(db, student)
+    print(s)
+    return s
+
+    # STUDENTS.append(student)
+    # return {
+    #     'message': 'Dodano nowego studenta',
+    #     'student': student
+    # }
 
 
 @app.patch('/update-student/', name='Update student')

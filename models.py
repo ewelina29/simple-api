@@ -5,9 +5,9 @@ from db import Base
 
 
 class StudentModel(Base):
-
     __tablename__ = 'student'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String, )
-    surname = Column(String, )
+    name = Column(String)
+    surname = Column(String)
+    student_class = Column(String)
