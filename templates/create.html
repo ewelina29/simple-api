@@ -1,0 +1,26 @@
+<html>
+<head>
+    <title>Students List</title>
+    <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
+</head>
+<body>
+<form method="post">
+
+    <label for="name">Imię</label>
+    <input type="text" name="name" id="name"><br>
+
+    <label for="surname">Nazwisko</label>
+    <input type="text" name="surname" id="surname"><br>
+
+    <label for="student_class">Klasa</label>
+    <input type="text" name="student_class" id="student_class"><br>
+
+    <input type="submit">
+
+</form>
+{% if new_student %}
+<div>Nowy student:</div>
+<p> {{ new_student.id }} {{ new_student.name }} {{ new_student.surname }} {{ new_student.student_class }} </p>
+{% endif %}
+</body>
+</html>

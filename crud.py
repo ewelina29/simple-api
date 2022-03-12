@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from sqlalchemy.orm import Session
 
 import models
@@ -15,6 +17,7 @@ def create_db_student(db: Session, student: schemas.Student):
     db.commit()
     db.refresh(db_student)
     return db_student
+
 
 def get_db_student_by_id(db: Session, id: int):
     return db.query(models.StudentModel).get(id)

@@ -1,12 +1,16 @@
 from typing import Optional
 
-from fastapi import FastAPI, Form, Depends
+from fastapi import FastAPI, Form, Depends, Request
 from pydantic import BaseModel
+from starlette.staticfiles import StaticFiles
+from starlette.templating import Jinja2Templates
 
 from crud import *
 from db import SessionLocal, engine
 
 app = FastAPI()
+templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -29,17 +33,6 @@ STUDENTS = [
 ]
 
 
-class Student(BaseModel):
-    id: Optional[int] = 0
-    # id: int
-    name: str
-    surname: str
-    student_class: str
-
-    class Config:
-        orm_mode = True
-
-
 @app.get("/root", name='Root endpoint', description='My root endpoint')
 def root():
     return {"message": "Hello World"}
@@ -56,10 +49,10 @@ def get_db():
 
 
 @app.get("/students", name='Students list')
-def get_all_students(db: Session = Depends(get_db)):
+def get_all_students(request: Request, db: Session = Depends(get_db), ):
     print('HERE', get_students(db))
-    return get_students(db)
-    # return STUDENTS
+    students = get_students(db)
+    return templates.TemplateResponse('create.html', {'request': request, 'students': students})
 
 
 @app.get("/student/search", name='Student by name')
@@ -91,15 +84,20 @@ def delete_student(id: int):
     return STUDENTS
 
 
-# TO-DO metoda modyfikująca dane ucznia
-# @app.put()
+@app.get('/create-student', name='Create student')
+def create_student(request: Request, db: Session = Depends(get_db)):
+    return templates.TemplateResponse('create.html', {'request': request})
 
 
 @app.post('/create-student', name='Create student')
-def create_student(student: Student, db: Session = Depends(get_db)):
-    s =  create_db_student(db, student)
-    print(s)
-    return s
+# def create_student(request: Request, student: Student, db: Session = Depends(get_db)):
+def create_student(request: Request, name: str = Form(...), surname: str = Form(...), student_class: str = Form(...),
+                   db: Session = Depends(get_db)):
+    print(name)
+    student = Student(name=name, surname=surname, student_class=student_class)
+    new_student = create_db_student(db, student)
+    # print(s)
+    return templates.TemplateResponse('create.html', {'request': request, 'new_student': new_student})
 
     # STUDENTS.append(student)
     # return {
