@@ -52,7 +52,7 @@ def get_db():
 def get_all_students(request: Request, db: Session = Depends(get_db), ):
     print('HERE', get_students(db))
     students = get_students(db)
-    return templates.TemplateResponse('create.html', {'request': request, 'students': students})
+    return templates.TemplateResponse('list.html', {'request': request, 'students': students})
 
 
 @app.get("/student/search", name='Student by name')
